@@ -7,7 +7,8 @@ In simpler terms, Apache kafka is like a communication system that helps differe
 
 
 # 📍 Kafka's Publisher-Subscriber model
-![image](https://github.com/user-attachments/assets/8d38bcea-0ee5-41fb-89dd-8b619e77827c)
+![411843836-8d38bcea-0ee5-41fb-89dd-8b619e77827c](https://github.com/user-attachments/assets/ad484d78-682a-4055-96f5-fe862600427e)
+
 
 In **Kafka's Publisher-Subscriber model** (Pub-Sub model), producers (publishers) send messages to **topics**, and consumers (subscribers) read messages from these topics. Kafka brokers store and distribute these messages efficiently.  
 
@@ -84,5 +85,32 @@ Kafka is a **message broker**, not a **permanent storage solution**. While Kafka
 | **Use Case Suitability**    | Works for small-scale applications | Best for large-scale, high-throughput systems like Zomato |
 
 
+
+# 📍 Key Features of Kafka
+
+1. **High Throughput**  
+   - Kafka can handle **millions of messages per second** with low latency.  
+   - It achieves this by using a **distributed, partitioned, and log-based storage system**.  
+   - Messages are written and read in a **sequential** manner, reducing disk I/O overhead.  
+
+2. **Fault Tolerance (Replication)**  
+   - Kafka ensures **data reliability** through **replication** across multiple brokers.  
+   - Each topic partition has **multiple replicas**, preventing data loss in case of broker failures.  
+   - If a leader broker fails, a replica automatically takes over as the new leader.  
+
+3. **Durable**  
+   - Kafka persists messages on **disk storage**, ensuring durability.  
+   - Messages are retained for a **configurable period** (even if they have been consumed).  
+   - This allows for message replay, which is useful for event-driven architectures.  
+
+4. **Scalable**  
+   - Kafka scales **horizontally** by adding more brokers to a cluster.  
+   - Topics are divided into **partitions**, enabling parallel processing.  
+   - Consumer groups allow for **load balancing**, ensuring efficient message consumption.  
+
+
+
+# 📍 Kafka Architecture
+![Screenshot 2025-02-11 142903](https://github.com/user-attachments/assets/6d328164-f9bf-41f3-a4b5-5bc4a57fc48b)
 
 
