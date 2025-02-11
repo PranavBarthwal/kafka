@@ -1,4 +1,4 @@
-# Apache Kafka
+# 📍 Apache Kafka
 
 Apache Kafka is a distributed event streaming platform used for building real-time data pipelines and streaming applications. It is designed to handle high-throughput, fault-tolerant, and scalable messaging. Kafka is widely used for log aggregation, real-time analytics, and event-driven architectures.
 
@@ -6,7 +6,7 @@ In simpler terms, Apache kafka is like a communication system that helps differe
 
 ---
 
-# Kafka's Publisher-Subscriber model
+# 📍 Kafka's Publisher-Subscriber model
 ![image](https://github.com/user-attachments/assets/8d38bcea-0ee5-41fb-89dd-8b619e77827c)
 
 In **Kafka's Publisher-Subscriber model** (Pub-Sub model), producers (publishers) send messages to **topics**, and consumers (subscribers) read messages from these topics. Kafka brokers store and distribute these messages efficiently.  
@@ -19,7 +19,7 @@ In **Kafka's Publisher-Subscriber model** (Pub-Sub model), producers (publishers
 
 ---
 
-# **Zomato’s Kafka-based Architecture for Real-Time Delivery Tracking**  
+# 📍 **Zomato’s Kafka-based Architecture for Real-Time Delivery Tracking**  
 
 ### **Problem with Traditional Architecture**  
 In a traditional architecture, Zomato would frequently retrieve and store the **delivery boy’s location** in the **database (DB)** and send updates to the **user**. Given Zomato’s scale, this would lead to:  
