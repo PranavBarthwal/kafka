@@ -434,3 +434,118 @@ graph TD;
 - **Multiple groups enable pub/sub** (each group gets all messages).  
 
 ---
+
+
+
+
+---
+
+
+
+
+---
+
+
+## **Consumer Groups in Kafka**  
+
+In Apache Kafka, a **consumer group** is a collection of consumer instances that work together to consume messages from one or more topics. The key idea is that Kafka allows messages in a topic to be **distributed among multiple consumers** in a scalable way while maintaining fault tolerance. Each consumer in a group reads from a subset of the partitions, ensuring that each partition is consumed by only one consumer within the group.  
+
+Kafka achieves this by **assigning partitions** to different consumers within a group, and this assignment is dynamically managed. If a consumer joins or leaves the group, Kafka automatically redistributes the partitions among the remaining consumers, a process known as **rebalancing**.  
+
+### **How Group-Level Self-Balancing Works**  
+
+Kafka dynamically balances load across consumers within a group. The partition assignment strategy ensures an **even and efficient** distribution of partitions across available consumers. The number of partitions and consumers in a group determine how messages are distributed.  
+
+---
+
+### **Scenario 1: Single Consumer in a Consumer Group**  
+
+If there is only **one consumer** in a group, that consumer receives messages from **all partitions** of the topic. There is no parallelism since all partitions are assigned to a single consumer.  
+
+```mermaid
+graph TD
+    subgraph Topic
+        P1(Partition 1) --> C1(Consumer 1)
+        P2(Partition 2) --> C1
+        P3(Partition 3) --> C1
+        P4(Partition 4) --> C1
+    end
+```
+
+In this case, Kafka does not need to perform any partition rebalancing unless the consumer fails, in which case another consumer (if available) can take over.  
+
+---
+
+### **Scenario 2: Multiple Consumers, Less Than or Equal to Partitions**  
+
+If there are **multiple consumers** in the group, and the number of consumers is **less than or equal to the number of partitions**, then Kafka distributes partitions among them **evenly**. Each partition is assigned to one consumer only.  
+
+For example, if we have **two consumers** and **four partitions**, the assignment will be:  
+
+```mermaid
+graph TD
+    subgraph Topic
+        P1(Partition 1) --> C1(Consumer 1)
+        P2(Partition 2) --> C1
+        P3(Partition 3) --> C2(Consumer 2)
+        P4(Partition 4) --> C2
+    end
+```
+
+This provides better parallelism and increases throughput, as messages are being processed by two consumers instead of one. If a consumer **fails**, Kafka **rebalances** the partitions and assigns them to the remaining consumers.  
+
+---
+
+### **Scenario 3: More Consumers than Partitions**  
+
+When there are **more consumers than partitions**, some consumers will be idle because each partition can only be assigned to **one** consumer.  
+
+For instance, if we have **three consumers** and only **two partitions**, the assignment will be:  
+
+```mermaid
+graph TD
+    subgraph Topic
+        P1(Partition 1) --> C1(Consumer 1)
+        P2(Partition 2) --> C2(Consumer 2)
+    end
+    C3(Consumer 3) -.->|Idle| X
+```
+
+Here, **Consumer 3 remains idle** since Kafka cannot assign it a partition. This scenario is inefficient because some consumers are underutilized.  
+
+---
+
+### **Scenario 4: Dynamic Balancing When Consumers Join or Leave**  
+
+When a new consumer **joins**, Kafka triggers a **rebalance** and redistributes partitions more evenly.  
+
+For example, if a third consumer joins in **Scenario 2** (where two consumers were handling four partitions), the new distribution might be:  
+
+```mermaid
+graph TD
+    subgraph Topic
+        P1(Partition 1) --> C1(Consumer 1)
+        P2(Partition 2) --> C2(Consumer 2)
+        P3(Partition 3) --> C3(Consumer 3)
+        P4(Partition 4) --> C3
+    end
+```
+
+Similarly, if a consumer **leaves**, its partitions are **reassigned** to the remaining consumers. This ensures continuous processing without data loss.  
+
+---
+
+### **Brief on Rebalancing**  
+
+Rebalancing occurs when:  
+- A new consumer joins  
+- A consumer leaves (crashes or is stopped)  
+- A partition count changes  
+
+Kafka **automatically reassigns partitions** among available consumers to maintain optimal load distribution. However, frequent rebalancing can be costly in terms of performance since consumers need to pause consuming messages during this process.  
+
+---
+
+### **Conclusion**  
+
+Kafka consumer groups enable **fault tolerance** and **scalable parallel processing** by dynamically distributing partitions across consumers. The **self-balancing** mechanism ensures that when consumers join or leave, the partitions are reassigned efficiently. Choosing the right number of consumers relative to partitions is **crucial** for optimizing performance—having **fewer consumers than partitions** ensures full utilization, while **having more consumers than partitions** leads to underutilized consumers.
