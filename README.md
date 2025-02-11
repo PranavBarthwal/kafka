@@ -4,7 +4,7 @@ Apache Kafka is a distributed event streaming platform used for building real-ti
 
 In simpler terms, Apache kafka is like a communication system that helps different parts of a computer system exchange data by publishing and subscribing to topics.
 
----
+
 
 # 📍 Kafka's Publisher-Subscriber model
 ![image](https://github.com/user-attachments/assets/8d38bcea-0ee5-41fb-89dd-8b619e77827c)
@@ -17,7 +17,7 @@ In **Kafka's Publisher-Subscriber model** (Pub-Sub model), producers (publishers
 3. **Consumers subscribe** to topics and process messages.  
 4. **Consumer groups ensure** each message is processed by only one consumer in the group.  
 
----
+
 
 # 📍 **Zomato’s Kafka-based Architecture for Real-Time Delivery Tracking**  
 
@@ -84,4 +84,5 @@ Kafka is a **message broker**, not a **permanent storage solution**. While Kafka
 | **Use Case Suitability**    | Works for small-scale applications | Best for large-scale, high-throughput systems like Zomato |
 
 
----
+
+
