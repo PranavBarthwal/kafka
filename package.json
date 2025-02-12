@@ -1,0 +1,11 @@
+{
+  "name": "kafka",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/PranavBarthwal/kafka.git",
+  "author": "PranavBarthwal <pbarthwal90@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "kafkajs": "^2.2.4"
+  }
+}
