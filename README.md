@@ -236,217 +236,7 @@ If there are **fewer consumers than partitions**, Kafka **distributes partitions
 - **Kafka ensures that the partitions are evenly distributed.**  
 
 ## Consumer Groups
-
-A **Consumer Group** in Kafka is a collection of consumers that work together to **consume messages from a topic in parallel**. Kafka ensures that each partition is assigned to only one consumer within the same group.  
-
-## **Basic Concept of Consumer Groups**  
-- Each **consumer group** subscribes to a topic.
-- Kafka distributes **partitions** among consumers in the group.
-- If a consumer fails, Kafka **reassigns** its partitions to other consumers in the group.  
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-
-    Topic -->|Partition 0| Consumer1;
-    Topic -->|Partition 1| Consumer2;
-    Topic -->|Partition 2| Consumer3;
-
-    subgraph ConsumerGroup["Consumer Group A"]
-        Consumer1
-        Consumer2
-        Consumer3
-    end
-```
-- **Each partition is assigned to one consumer within the group.**  
-- **Messages are evenly distributed among consumers.**  
-- **Scales processing by adding more consumers.**  
-
-## **Multiple Consumer Groups (Pub/Sub Model)**  
-- When **multiple consumer groups** subscribe to the same topic, each group **receives a full copy** of the messages.  
-- Consumers in different groups operate **independently**.  
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-
-    Topic -->|Partition 0| ConsumerA1;
-    Topic -->|Partition 1| ConsumerA2;
-    Topic -->|Partition 2| ConsumerA3;
-
-    subgraph ConsumerGroupA["Consumer Group A"]
-        ConsumerA1
-        ConsumerA2
-        ConsumerA3
-    end
-
-    Topic -->|Partition 0| ConsumerB1;
-    Topic -->|Partition 1| ConsumerB2;
-    Topic -->|Partition 2| ConsumerB3;
-
-    subgraph ConsumerGroupB["Consumer Group B"]
-        ConsumerB1
-        ConsumerB2
-        ConsumerB3
-    end
-```
-- **Each consumer group gets all messages independently.**  
-- **Useful for multiple use cases (e.g., analytics and real-time processing).**  
-
-## **Consumer Rebalancing (Failure Handling)**  
-- If a consumer **fails**, Kafka **redistributes** its partitions to active consumers.  
-- When a new consumer **joins**, Kafka **balances the load**.  
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-
-    Topic -->|Partition 0| Consumer1;
-    Topic -->|Partition 1| Consumer2;
-    Topic -->|Partition 2| Consumer3;
-    
-    subgraph ConsumerGroup["Consumer Group A"]
-        Consumer1
-        Consumer2
-        Consumer3
-    end
-
-    Consumer2 -- Fails --> X(Consumer2 Down);
-    Partition1 -.->|Reassigned| Consumer3;
-
-```
-- **If Consumer2 fails, its partition is reassigned to another consumer.**  
-- **Kafka ensures continuous processing without data loss.**  
-
-## **More Consumers Than Partitions (Idle Consumers)**  
-- When the **number of consumers is greater than the number of partitions**, some consumers remain **idle**.  
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-
-    Topic -->|Partition 0| Consumer1;
-    Topic -->|Partition 1| Consumer2;
-    Topic -->|Partition 2| Consumer3;
-
-    subgraph ConsumerGroup["Consumer Group A"]
-        Consumer1
-        Consumer2
-        Consumer3
-        Consumer4
-        Consumer5
-    end
-```
-- **Consumers 4 and 5 are idle because there are only 3 partitions.**  
-- **To optimize, partitions should be equal to or greater than consumers.**  
-
-## **Fewer Consumers Than Partitions (Consumers Handle Multiple Partitions)**  
-- If the **number of consumers is less than the number of partitions**, each consumer processes **multiple partitions**.  
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-
-    Topic -->|Partition 0| Consumer1;
-    Topic -->|Partition 1| Consumer1;
-    Topic -->|Partition 2| Consumer2;
-    Topic -->|Partition 3| Consumer2;
-
-    subgraph ConsumerGroup["Consumer Group A"]
-        Consumer1
-        Consumer2
-    end
-```
-- **Consumers distribute partitions dynamically.**  
-- **Efficient but may increase processing time per consumer.**  
-
-
-
-# 📍**Queue Model vs. Pub/Sub Model in Kafka**  
-
-Kafka supports **both the Queue Model and the Publish-Subscribe (Pub/Sub) Model** through **Consumer Groups**, allowing it to function in different messaging patterns.
-
-## **Queue Model (Point-to-Point Messaging)**
-- In a **Queue Model**, multiple consumers act as workers, but **each message is processed by only one consumer**.
-- Kafka achieves this using **Consumer Groups**, where partitions are **evenly distributed among consumers**.
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-    Topic -->|Partition 0| ConsumerA;
-    Topic -->|Partition 1| ConsumerB;
-    Topic -->|Partition 2| ConsumerC;
-```
-- **Messages are load-balanced** across consumers.  
-- **No message duplication** within the consumer group.  
-- This model is useful for **task processing (e.g., background jobs, event-driven processing)**.
-
-## **Publish-Subscribe (Pub/Sub) Model**
-- In **Pub/Sub**, multiple consumers receive **a copy of the same message**.
-- Kafka enables this by using **multiple independent consumer groups**.  
-- Each group gets **its own copy** of the messages.
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-    Topic -->|Partition 0| ConsumerGroup1;
-    Topic -->|Partition 1| ConsumerGroup1;
-    Topic -->|Partition 2| ConsumerGroup1;
-    
-    Topic -->|Partition 0| ConsumerGroup2;
-    Topic -->|Partition 1| ConsumerGroup2;
-    Topic -->|Partition 2| ConsumerGroup2;
-```
-- **Each consumer group gets the entire data stream.**  
-- **Consumers in different groups do not affect each other.**  
-- Used for **real-time analytics, logging, event-driven architectures**.
-
-## **Kafka Consumer Groups: Combining Queue & Pub/Sub Models**
-- Kafka's **Consumer Groups enable both models**:
-  - Within a **single group**, Kafka works as a **Queue Model**.
-  - With **multiple groups**, Kafka behaves as a **Pub/Sub Model**.
-
-```mermaid
-graph TD;
-    Producer -->|Publishes Messages| Topic;
-
-    Topic -->|Partition 0| ConsumerA1;
-    Topic -->|Partition 1| ConsumerA2;
-    Topic -->|Partition 2| ConsumerA3;
-    
-    subgraph ConsumerGroupA["Consumer Group A"]
-        ConsumerA1
-        ConsumerA2
-        ConsumerA3
-    end
-
-    Topic -->|Partition 0| ConsumerB1;
-    Topic -->|Partition 1| ConsumerB2;
-    Topic -->|Partition 2| ConsumerB3;
-    
-    subgraph ConsumerGroupB["Consumer Group B"]
-        ConsumerB1
-        ConsumerB2
-        ConsumerB3
-    end
-```
-- **Each group acts as a queue** (messages distributed across group members).  
-- **Multiple groups enable pub/sub** (each group gets all messages).  
-
----
-
-
-
-
----
-
-
-
-
----
-
-
-## **Consumer Groups in Kafka**  
+![Screenshot 2025-02-12 191323](https://github.com/user-attachments/assets/6f1484d3-da0a-45a8-8dc6-4066201e6b17)
 
 In Apache Kafka, a **consumer group** is a collection of consumer instances that work together to consume messages from one or more topics. The key idea is that Kafka allows messages in a topic to be **distributed among multiple consumers** in a scalable way while maintaining fault tolerance. Each consumer in a group reads from a subset of the partitions, ensuring that each partition is consumed by only one consumer within the group.  
 
@@ -455,85 +245,6 @@ Kafka achieves this by **assigning partitions** to different consumers within a 
 ### **How Group-Level Self-Balancing Works**  
 
 Kafka dynamically balances load across consumers within a group. The partition assignment strategy ensures an **even and efficient** distribution of partitions across available consumers. The number of partitions and consumers in a group determine how messages are distributed.  
-
----
-
-### **Scenario 1: Single Consumer in a Consumer Group**  
-
-If there is only **one consumer** in a group, that consumer receives messages from **all partitions** of the topic. There is no parallelism since all partitions are assigned to a single consumer.  
-
-```mermaid
-graph TD
-    subgraph Topic
-        P1(Partition 1) --> C1(Consumer 1)
-        P2(Partition 2) --> C1
-        P3(Partition 3) --> C1
-        P4(Partition 4) --> C1
-    end
-```
-
-In this case, Kafka does not need to perform any partition rebalancing unless the consumer fails, in which case another consumer (if available) can take over.  
-
----
-
-### **Scenario 2: Multiple Consumers, Less Than or Equal to Partitions**  
-
-If there are **multiple consumers** in the group, and the number of consumers is **less than or equal to the number of partitions**, then Kafka distributes partitions among them **evenly**. Each partition is assigned to one consumer only.  
-
-For example, if we have **two consumers** and **four partitions**, the assignment will be:  
-
-```mermaid
-graph TD
-    subgraph Topic
-        P1(Partition 1) --> C1(Consumer 1)
-        P2(Partition 2) --> C1
-        P3(Partition 3) --> C2(Consumer 2)
-        P4(Partition 4) --> C2
-    end
-```
-
-This provides better parallelism and increases throughput, as messages are being processed by two consumers instead of one. If a consumer **fails**, Kafka **rebalances** the partitions and assigns them to the remaining consumers.  
-
----
-
-### **Scenario 3: More Consumers than Partitions**  
-
-When there are **more consumers than partitions**, some consumers will be idle because each partition can only be assigned to **one** consumer.  
-
-For instance, if we have **three consumers** and only **two partitions**, the assignment will be:  
-
-```mermaid
-graph TD
-    subgraph Topic
-        P1(Partition 1) --> C1(Consumer 1)
-        P2(Partition 2) --> C2(Consumer 2)
-    end
-    C3(Consumer 3) -.->|Idle| X
-```
-
-Here, **Consumer 3 remains idle** since Kafka cannot assign it a partition. This scenario is inefficient because some consumers are underutilized.  
-
----
-
-### **Scenario 4: Dynamic Balancing When Consumers Join or Leave**  
-
-When a new consumer **joins**, Kafka triggers a **rebalance** and redistributes partitions more evenly.  
-
-For example, if a third consumer joins in **Scenario 2** (where two consumers were handling four partitions), the new distribution might be:  
-
-```mermaid
-graph TD
-    subgraph Topic
-        P1(Partition 1) --> C1(Consumer 1)
-        P2(Partition 2) --> C2(Consumer 2)
-        P3(Partition 3) --> C3(Consumer 3)
-        P4(Partition 4) --> C3
-    end
-```
-
-Similarly, if a consumer **leaves**, its partitions are **reassigned** to the remaining consumers. This ensures continuous processing without data loss.  
-
----
 
 ### **Brief on Rebalancing**  
 
@@ -544,8 +255,34 @@ Rebalancing occurs when:
 
 Kafka **automatically reassigns partitions** among available consumers to maintain optimal load distribution. However, frequent rebalancing can be costly in terms of performance since consumers need to pause consuming messages during this process.  
 
----
 
-### **Conclusion**  
 
-Kafka consumer groups enable **fault tolerance** and **scalable parallel processing** by dynamically distributing partitions across consumers. The **self-balancing** mechanism ensures that when consumers join or leave, the partitions are reassigned efficiently. Choosing the right number of consumers relative to partitions is **crucial** for optimizing performance—having **fewer consumers than partitions** ensures full utilization, while **having more consumers than partitions** leads to underutilized consumers.
+# 📍**Queue Model vs. Pub/Sub Model in Kafka**  
+
+Kafka supports **both the Queue Model and the Publish-Subscribe (Pub/Sub) Model** through **Consumer Groups**, allowing it to function in different messaging patterns.
+
+## **Queue Model (Point-to-Point Messaging)**
+- In a **Queue Model**, multiple consumers act as workers, but **each message is processed by only one consumer**.
+- Kafka achieves this using **Consumer Groups**, where partitions are **evenly distributed among consumers**.
+- **Messages are load-balanced** across consumers.  
+- **No message duplication** within the consumer group.  
+- This model is useful for **task processing (e.g., background jobs, event-driven processing)**.
+
+## **Publish-Subscribe (Pub/Sub) Model**
+- In **Pub/Sub**, multiple consumers receive **a copy of the same message**.
+- Kafka enables this by using **multiple independent consumer groups**.  
+- Each group gets **its own copy** of the messages.
+- **Each consumer group gets the entire data stream.**  
+- **Consumers in different groups do not affect each other.**  
+- Used for **real-time analytics, logging, event-driven architectures**.
+
+## **Kafka Consumer Groups: Combining Queue & Pub/Sub Models**
+- Kafka's **Consumer Groups enable both models**:
+  - Within a **single group**, Kafka works as a **Queue Model**.
+  - With **multiple groups**, Kafka behaves as a **Pub/Sub Model**.
+
+![Screenshot 2025-02-12 191204](https://github.com/user-attachments/assets/4ff4c742-22b1-4cdb-956e-5ce620150950)
+
+
+- **Each group acts as a queue** (messages distributed across group members).  
+- **Multiple groups enable pub/sub** (each group gets all messages).
